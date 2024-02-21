@@ -1,7 +1,6 @@
-# aietrace : a Python parser for AIE trace files
+# aietrace : a utility for parsing AIE trace files
 
-This python package contains a utility for parsing events from AIE trace files.
-It can be used to generate files in a format consumable by perfetto allowing events to be visualised and inspected inspected.
+This Python package contains a utility for parsing events from AIE trace files. It can convert raw trace files into a format consumable by Perfetto, allowing events to be visualised and inspected.
 
 ### installation
 
@@ -38,7 +37,7 @@ aietrace --input <raw trace file>.txt --json <perfetto file>.json
 
 To visualise the output drag and drop the output json file into [https://ui.perfetto.dev/](https://ui.perfetto.dev/).
 
-It is also possible to give names to the event slots that are being used. To do this use the events argument in the tool. (TODO: parse the MLIR source to extract this)
+It is also possible to give names to the event slots that are being used. To do this use the events argument in the tool. **(TODO: parse the MLIR source to extract this)**
 
 The debug flag will dump intermediate parsing results of the raw trace data such as the frames.
 
