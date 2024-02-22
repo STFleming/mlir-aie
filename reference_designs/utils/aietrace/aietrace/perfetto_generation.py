@@ -2,7 +2,7 @@ from .trace_frames import Frame, Start, Stop, Single0
 from .trace_frames import Single1, Single2, Multiple0 
 from .trace_frames import Multiple1, Repeat0, Repeat1
 from .trace_buffers import TraceBuffers, TraceIdent
-from .trace_frames import parse_frames
+from .trace_frames import parse_frames, Sync
 from typing import List, Dict, Tuple
 import json
 import copy
@@ -24,6 +24,8 @@ def construct_timeline(frames:List[Frame])->List[Tuple[List[str],List[int]]]:
             new_ts = ts + f.no_of_repeats
             if len(timeline) > 0:
                 timeline[-1][1][1] = new_ts
+        elif isinstance(f, Sync): 
+            new_ts = ts + 0x3FFFF
         else:
             new_ts = ts
         ts = new_ts
