@@ -1,8 +1,9 @@
 from .trace_frames import Frame, Start, Stop, Single0 
 from .trace_frames import Single1, Single2, Multiple0 
 from .trace_frames import Multiple1, Repeat0, Repeat1
+from .trace_frames import Sync 
 from .trace_buffers import TraceBuffers, TraceIdent
-from .trace_frames import parse_frames, Sync
+from .trace_frames import parse_frames
 from typing import List, Dict, Tuple
 import json
 import copy
@@ -21,10 +22,18 @@ def construct_timeline(frames:List[Frame])->List[Tuple[List[str],List[int]]]:
             event = (f.events, [new_ts, new_ts])
             timeline.append(event)
         elif isinstance(f, Repeat0) or isinstance(f, Repeat1):
-            new_ts = ts + f.no_of_repeats
+            #new_ts = ts + f.no_of_repeats
+            #if len(timeline) > 0:
+            #    timeline[-1][1][1] = new_ts
             if len(timeline) > 0:
-                timeline[-1][1][1] = new_ts
-        elif isinstance(f, Sync): 
+                for i in range(f.no_of_repeats):
+                    new_ts = ts + 1
+                    nT = copy.deepcopy(timeline[-1])
+                    nT[1][0] = new_ts
+                    nT[1][1] = new_ts
+                    timeline.append(nT)
+                    ts = new_ts
+        elif isinstance(f, Sync):
             new_ts = ts + 0x3FFFF
         else:
             new_ts = ts
@@ -50,7 +59,16 @@ def generate_perfetto_dict(buffs:TraceBuffers, events:List[str] = [])->Dict:
 
     for b, trace in buffs.buffers.items():
         timeline = construct_timeline(parse_frames(trace, events))
-        timeline[-1][1][1] = timeline[-1][1][0] #Remove long pause at end of trace
+
+        # Remove any long stalls at the end of the trace
+        end_stall_count=0
+        for i in reversed(timeline):
+            if i[0] == ['LOCK_STALL']:
+                end_stall_count = end_stall_count + 1
+            else:
+                break
+        timeline = timeline[:len(timeline)-end_stall_count]
+
         for e in timeline:
             d = d + construct_perfetto_events(b, e, events)
             new_ts = d[-1]['ts']
