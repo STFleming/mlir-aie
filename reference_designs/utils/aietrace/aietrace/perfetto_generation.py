@@ -14,11 +14,11 @@ def construct_timeline(frames:List[Frame])->List[Tuple[List[str],List[int]]]:
     ts=0
     for f in frames:
         if isinstance(f, Single0) or isinstance(f, Single1) or isinstance(f,Single2):
-            new_ts = ts + f.no_of_cycles 
+            new_ts = ts + f.no_of_cycles + 1 
             event = ([f.event], [new_ts, new_ts])            
             timeline.append(event)
         elif isinstance(f, Multiple0) or isinstance(f, Multiple1):
-            new_ts = ts + f.no_of_cycles
+            new_ts = ts + f.no_of_cycles + 1
             event = (f.events, [new_ts, new_ts])
             timeline.append(event)
         elif isinstance(f, Repeat0) or isinstance(f, Repeat1):

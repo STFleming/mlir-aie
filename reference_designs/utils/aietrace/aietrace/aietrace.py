@@ -47,6 +47,16 @@ def main():
                     print(f"Writing the constructed timeline to {hash(buff)%1000}_timeline.log")
                     wp.write("\n\n")
                     timeline = construct_timeline(frames)
+
+                    # Remove any long stalls at the end of the trace
+                    end_stall_count=0
+                    for i in reversed(timeline):
+                        if i[0] == ['LOCK_STALL']:
+                            end_stall_count = end_stall_count + 1
+                        else:
+                            break
+                    timeline = timeline[:len(timeline)-end_stall_count]
+
                     for event in timeline:
                         wp.write(f"{event}\n")
 
